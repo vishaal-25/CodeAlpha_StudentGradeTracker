@@ -1,44 +1,111 @@
-# 🎓 Student Grade Tracker
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.*;
 
-A simple **Java console application** to manage student grades.  
-Developed as part of the **CodeAlpha Java Programming Internship**.
+class Student {
+    String name;
+    int rollNo;
+    ArrayList<Integer> grades = new ArrayList<>();
 
----
+    Student(String name, int rollNo) {
+        this.name = name;
+        this.rollNo = rollNo;
+    }
 
-## ✨ Features
-- Add students with roll number and name
-- Record multiple grades per student
-- Calculate **average marks**
-- Assign **letter grades (A, B, C, D, F)**
-- Search student by roll number
-- Export report to a **text file** (`StudentReport.txt`)
+    double getAverage() {
+        int sum = 0;
+        for (int g : grades) sum += g;
+        return grades.size() > 0 ? (double) sum / grades.size() : 0.0;
+    }
 
----
+    String getLetterGrade() {
+        double avg = getAverage();
+        if (avg >= 90) return "A";
+        else if (avg >= 75) return "B";
+        else if (avg >= 60) return "C";
+        else if (avg >= 40) return "D";
+        else return "F";
+    }
+}
 
-## 🖥️ Sample Run
---- Student Grade Tracker ---
+public class StudentGradeTracker {
+    static ArrayList<Student> students = new ArrayList<>();
+    static Scanner sc = new Scanner(System.in);
 
-Add Student
+    public static void main(String[] args) throws IOException {
+        while (true) {
+            System.out.println("\n--- Student Grade Tracker ---");
+            System.out.println("1. Add Student");
+            System.out.println("2. Add Grades");
+            System.out.println("3. View Report");
+            System.out.println("4. Search Student");
+            System.out.println("5. Export Report to File");
+            System.out.println("6. Exit");
+            int choice = sc.nextInt();
 
-Add Grade
+            switch (choice) {
+                case 1 -> addStudent();
+                case 2 -> addGrades();
+                case 3 -> viewReport();
+                case 4 -> searchStudent();
+                case 5 -> exportReport();
+                case 6 -> System.exit(0);
+            }
+        }
+    }
 
-View Report
+    static void addStudent() {
+        System.out.print("Enter Roll No: ");
+        int roll = sc.nextInt();
+        sc.nextLine();
+        System.out.print("Enter Name: ");
+        String name = sc.nextLine();
+        students.add(new Student(name, roll));
+        System.out.println("Student added!");
+    }
 
-Search Student
+    static void addGrades() {
+        System.out.print("Enter Roll No: ");
+        int roll = sc.nextInt();
+        for (Student s : students) {
+            if (s.rollNo == roll) {
+                System.out.print("Enter Grade: ");
+                int grade = sc.nextInt();
+                s.grades.add(grade);
+                System.out.println("Grade added!");
+                return;
+            }
+        }
+        System.out.println("Student not found.");
+    }
 
-Export Report
+    static void viewReport() {
+        for (Student s : students) {
+            System.out.printf("Roll: %d | Name: %s | Avg: %.2f | Grade: %s\n",
+                    s.rollNo, s.name, s.getAverage(), s.getLetterGrade());
+        }
+    }
 
-Exit
+    static void searchStudent() {
+        System.out.print("Enter Roll No: ");
+        int roll = sc.nextInt();
+        for (Student s : students) {
+            if (s.rollNo == roll) {
+                System.out.printf("Roll: %d | Name: %s | Avg: %.2f | Grade: %s\n",
+                        s.rollNo, s.name, s.getAverage(), s.getLetterGrade());
+                return;
+            }
+        }
+        System.out.println("Student not found.");
+    }
 
-Roll: 101 | Name: Alice | Avg: 91.50 | Grade: A
-Roll: 102 | Name: Bob | Avg: 66.00 | Grade: C
-
-
----
-
-## 📂 Exported Report Example
-**StudentReport.txt**
-
-
-Roll: 101 | Name: Alice | Avg: 91.50 | Grade: A
-Roll: 102 | Name: Bob | Avg: 66.00 | Grade: C
+    static void exportReport() throws IOException {
+        FileWriter fw = new FileWriter("StudentReport.txt");
+        for (Student s : students) {
+            fw.write(String.format("Roll: %d | Name: %s | Avg: %.2f | Grade: %s\n",
+                    s.rollNo, s.name, s.getAverage(), s.getLetterGrade()));
+        }
+        fw.close();
+        System.out.println("Report exported to StudentReport.txt");
+    }
+}
